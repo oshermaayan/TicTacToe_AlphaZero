@@ -11,14 +11,14 @@ class Board(object):
     """board for the game"""
 
     def __init__(self, **kwargs):
-        self.width = int(kwargs.get('width', 8))
+        self.width = int(kwargs.get('width', 8)) # 8 is the default value
         self.height = int(kwargs.get('height', 8))
         # board states stored as a dict,
         # key: move as location on the board,
         # value: player as pieces type
         self.states = {}
         # need how many pieces in a row to win
-        self.n_in_row = int(kwargs.get('n_in_row', 5))
+        self.n_in_row = int(kwargs.get('n_in_row', 5)) # 5 is the default value
         self.players = [1, 2]  # player1 and player2
 
     def init_board(self, start_player=0):
@@ -60,6 +60,7 @@ class Board(object):
 
         square_state = np.zeros((4, self.width, self.height))
         if self.states:
+            # moves int in range (0->width*height), players - which player (if any) marked the indices
             moves, players = np.array(list(zip(*self.states.items())))
             move_curr = moves[players == self.current_player]
             move_oppo = moves[players != self.current_player]
@@ -83,15 +84,29 @@ class Board(object):
         )
         self.last_move = move
 
-    def has_a_winner(self):
+    def do_move_manual(self, move, player):
+        '''
+        Used for manually setting a board with values
+        :param move:
+        :param player:
+        :return:
+        '''
+        # X - 1, O - 2
+        self.states[move] = player
+        self.availables.remove(move)
+        self.last_move = move
+
+    def has_a_winner(self, original_code=True):
         width = self.width
         height = self.height
         states = self.states
         n = self.n_in_row
 
         moved = list(set(range(width * height)) - set(self.availables))
-        if len(moved) < self.n_in_row + 2:
-            return False, -1
+        #TODO: REMOVE original_code parameter and the if condition later
+        if(original_code):
+            if len(moved) < self.n_in_row + 2:
+                return False, -1
 
         for m in moved:
             h = m // width
@@ -175,6 +190,7 @@ class Game(object):
             current_player = self.board.get_current_player()
             player_in_turn = players[current_player]
             move = player_in_turn.get_action(self.board)
+            print("Move is {m}".format(m=move))
             self.board.do_move(move)
             if is_shown:
                 self.graphic(self.board, player1.player, player2.player)

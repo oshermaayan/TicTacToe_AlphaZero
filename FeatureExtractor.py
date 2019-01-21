@@ -64,29 +64,6 @@ class FeatureExtractor:
 
         return square_features_scores
 
-        ''' Calculate features for each square in the board'''
-        '''
-        for r in range(N):
-            for c in range(N):
-                square_val = board.mark2num(board_matrix[r][c])
-                if np.isnan(square_val):  # calculate features only for empty squares
-                    square_features_scores = self.get_new_square_feat_dict()
-                    density_score = self.densityFeature(board_matrix, r, c, N)
-                    square_features_scores["density"] = density_score
-                    linear, nonlinear, interaction, blocking = self.calcNotDensityFeats(board, paths_data,
-                                                                                        r, c, x_turn, o_turn)
-                    square_features_scores["linear"] = linear
-                    square_features_scores["nonlinear"] = nonlinear
-                    square_features_scores["interaction"] = interaction
-                    square_features_scores["blocking"] = blocking
-                    #update score_matrix
-                    score_matrix[r][c] = square_features_scores
-                else:
-                    #square already has a value
-                    score_matrix[r][c] = {"key":"square_is_taken"}
-                return score_matrix
-        '''
-
 
     def densityFeature(self, board_mat:np.array, row, col, N, X=1, O=2):
         if (row<0 | row>N | col<0 | col>N):
@@ -187,9 +164,9 @@ class FeatureExtractor:
         # Calculate blocking score
         if (max_path_x == streak_size) & x_turn:
             # Winning move for X
-            blocking_score_x = WIN_SCORE
+            blocking_score_x = INFINITY_X
         elif (max_path_o == streak_size) & o_turn:
-            blocking_score_o = WIN_SCORE
+            blocking_score_o = INFINITY_O
         elif (max_path_x == (streak_size - 1)) & x_turn:  # give score for blocking O
             # square_score_o = INFINITY_O
             blocking_score_x = 1#INFINITY_O

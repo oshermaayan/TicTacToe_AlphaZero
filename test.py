@@ -34,9 +34,9 @@ def file_to_board(board_file_path,rows_num, cols_num, X="X",O="O",empty="_",spli
 
     return board
 
-def json_file_to_board(json_path,rows_num, cols_num, matrix_key, X=1,O=2,empty=0):
+def json_file_to_AlphaZeroBoard(json_path,rows_num, cols_num, matrix_key, X=1,O=2,empty=0):
     '''
-    :param board_file_path: path to file with array-like matrix
+    :param board_file_path: path to a JSON file with array-like matrix
     :param X: X representation in the matrix
     :param matrix_key: key (String) to the matrix value inside the json file; e.g. "position"
     :param O:
@@ -66,7 +66,7 @@ def json_file_to_board(json_path,rows_num, cols_num, matrix_key, X=1,O=2,empty=0
 
     return board
 
-def extract_marked_location(json_path,rows_num, cols_num, matrix_key, X=1,O=2,empty=0):
+def extract_marked_locations(json_path,rows_num, cols_num, matrix_key, X=1,O=2,empty=0):
     '''
     :param board_file_path: path to file with array-like matrix
     :param X: X representation in the matrix
@@ -138,16 +138,16 @@ rows_num = 6
 cols_num = 6
 
 # Set up board
-board = json_file_to_board(json_path, matrix_key= "position", rows_num=rows_num, cols_num=cols_num)
+board = json_file_to_AlphaZeroBoard(json_path, matrix_key= "position", rows_num=rows_num, cols_num=cols_num)
 
 # Extract X and O locations in the original board
-X_locations, O_locations = extract_marked_location(json_path, matrix_key= "position", rows_num=rows_num, cols_num=cols_num)
+X_locations, O_locations = extract_marked_locations(json_path, matrix_key= "position", rows_num=rows_num, cols_num=cols_num)
 
 #Create an evaluator for each board and evaluate current board
 policy_param = pickle.load(open(model_file, 'rb'),encoding='bytes')
 evaluator = policy_value_net_numpy.PolicyValueNetNumpy(rows_num, cols_num, policy_param)
 
-zipped_res, board_score = evaluator.policy_value_fn(board) # Calculated for new_board.current_player!
+zipped_res, board_score = evaluator.policy_value_fn(board) #Scores are alculated for new_board.current_player!
 actions_scores = extract_scores(zipped_res, board)
 
 heat_map = create_probabilites_matrix(actions_scores, X_locations, O_locations, board_size=rows_num)

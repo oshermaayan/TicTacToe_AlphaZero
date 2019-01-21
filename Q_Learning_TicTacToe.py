@@ -793,7 +793,7 @@ class FeatureExtractor:
             if streak_size == p1[0]:
                 # current player has one - update all of the features scores
                 for feature in tmp_score_dict:
-                    tmp_score_dict[feature] = WIN_SCORE  ### Check with Ofra
+                    tmp_score_dict[feature] = INFINITY_X  ### Check with Ofra
                 winning_move = True
                 break  # Highest score achieved
             else:

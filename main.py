@@ -5,6 +5,7 @@ import game
 import policy_value_net_numpy
 import pickle
 import operator
+import argparse
 
 
 def read_board_from_json(json_path, board_key, rows_num, cols_num):
@@ -29,8 +30,8 @@ def extract_X_O_locations(board, X=1,O=2):
     :return: two lists, one for X and one for O, containing their locations (row,col) on the board
     '''
     rows_num, cols_num = board.shape
-    X_locations = [(row, col) for col in range(cols_num) for row in range(rows_num) if board[row, col] == X]
-    O_locations = [(row, col) for col in range(cols_num) for row in range(rows_num) if board[row, col] == O]
+    X_locations = [(row, col) for row in range(rows_num) for col in range(cols_num) if board[row, col] == X]
+    O_locations = [(row, col) for row in range(rows_num) for col in range(cols_num) if board[row, col] == O]
 
     return X_locations, O_locations
 
@@ -140,16 +141,42 @@ def get_AlphaZero_actions_scores(model_path, az_board):
     return actions_scores, board_score
 
 #Main
-json_path = "json_6x6.json"
-json_board_key = "position"
-model_file = 'best_policy_6_6_4.model2'
-rows_num = 6
-cols_num = 6
-streak_size = 4
-X_mark = 1
-O_mark = 2
+'''
+Parse arguments and save to relevant variables
+'''
+parser = argparse.ArgumentParser()
+parser.add_argument('--jsonPath', type=str, help='Path for JSON file containing the board', default='json_6x6.json')
+parser.add_argument('--jsonBoardKey', type=str, help='Key name for the board object inside the JSON file',
+                    default='position')
+parser.add_argument('--modelPath', type=str, help='Path to trained DQN model', default='best_policy_6_6_4.model2')
+parser.add_argument('--boardSize', type = int, help = 'Board size (NxN)', default=6)
+parser.add_argument('--streakSize', type = int, help = 'Streak size', default=4)
+parser.add_argument('--X_mark', type = int, help = 'Number representing X in the board', default=1)
+parser.add_argument('--O_mark', type = int, help = 'Number representing O in the board', default=2)
+
+parameters = parser.parse_args()
+
+json_path = parameters.jsonPath
+json_board_key = parameters.jsonBoardKey
+model_file = parameters.modelPath
+rows_num = parameters.boardSize
+cols_num = parameters.boardSize
+streak_size = parameters.streakSize
+X_mark = parameters.X_mark
+O_mark = parameters.O_mark
+
+assert streak_size <= rows_num
+
+'''
+For now, these are the supported features. 
+Adding more features requires modifying the FeatureExtractor class
+'''
 features_names = ["density", "linear", "nonlinear", "interaction", "blocking"]
 
+'''
+Run code
+'''
+#Read board from file and extract relevant data
 np_board = read_board_from_json(json_path, json_board_key, rows_num, cols_num)
 X_locations, O_locations = extract_X_O_locations(np_board, X_mark, O_mark)
 
